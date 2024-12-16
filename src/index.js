@@ -1,7 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const productRoutes = require('./routes/item_route');
+const productRoutes = require('./routes/itemRoute');
+const companyRoutes = require('./routes/companyRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
+const subCategoryRoutes = require('./routes/subCategoryRoutes');
+const brandRoutes = require('./routes/brandRoutes');
 
 const app = express();
 
@@ -12,6 +16,10 @@ app.use(express.json());
 
 // Routes
 app.use('/api/items', productRoutes);
+app.use('/api/company', companyRoutes);
+app.use('/api/category', categoryRoutes); // Add category route
+app.use('/api/subCategory', subCategoryRoutes); // Add subcategory route
+app.use('/api/brands', brandRoutes); // Add brand
 
 const mongoURI = 'mongodb+srv://maulikfuerte:AcPz4qnrBebR3cKp@productentry.w9ohl.mongodb.net/?retryWrites=true&w=majority&appName=productEntry';
 
