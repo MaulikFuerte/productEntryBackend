@@ -19,7 +19,7 @@ app.use('/api/items', productRoutes);
 app.use('/api/company', companyRoutes);
 app.use('/api/category', categoryRoutes); // Add category route
 app.use('/api/subCategory', subCategoryRoutes); // Add subcategory route
-app.use('/api/brands', brandRoutes); // Add brand
+app.use('/api/brands ', brandRoutes); // Add brand
 
 const mongoURI = 'mongodb+srv://maulikfuerte:AcPz4qnrBebR3cKp@productentry.w9ohl.mongodb.net/?retryWrites=true&w=majority&appName=productEntry';
 
