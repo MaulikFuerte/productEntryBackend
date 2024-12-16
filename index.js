@@ -1,11 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const productRoutes = require('./routes/itemRoute');
-const companyRoutes = require('./routes/companyRoutes');
-const categoryRoutes = require('./routes/categoryRoutes');
-const subCategoryRoutes = require('./routes/subCategoryRoutes');
-const brandRoutes = require('./routes/brandRoutes');
+const productRoutes = require('./src/routes/itemRoute');
+const companyRoutes = require('./src/routes/companyRoutes');
+const categoryRoutes = require('./src/routes/categoryRoutes');
+const subCategoryRoutes = require('./src/routes/subCategoryRoutes');
+const brandRoutes = require('./src/routes/brandRoutes');
 
 const app = express();
 
