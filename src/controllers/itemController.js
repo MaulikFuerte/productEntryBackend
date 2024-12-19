@@ -236,19 +236,24 @@ exports.searchItems = async (req, res) => {
         if (category) {
             filters.category = new mongoose.Types.ObjectId(category);
         }
-
         // Add condition for subCategory if provided
         if (subCategory) {
-            filters.subCategory = new mongoose.Types.ObjectId(subCategory);
+            // Parse subCategory to handle multiple values
+            const subCategories = Array.isArray(subCategory)
+                ? subCategory
+                : subCategory.split(','); // Accept comma-separated values
+            filters.subCategory = { $in: subCategories.map(id => new mongoose.Types.ObjectId(id)) };
         }
 
         // Add condition for brand if provided
         if (brand) {
-            filters.brand = new mongoose.Types.ObjectId(brand);
+            // Parse brand to handle multiple values
+            const brands = Array.isArray(brand) ? brand : brand.split(','); // Accept comma-separated values
+            filters.brand = { $in: brands.map(id => new mongoose.Types.ObjectId(id)) };
         }
 
         // Find items based on the AND filter conditions
-        const items = await Item.find(filters).populate('category subCategory brand');
+        const items = await Item.find(filters);
 
         res.status(200).json({ success: true, data: items });
     } catch (error) {
