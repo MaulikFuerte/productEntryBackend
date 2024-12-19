@@ -41,6 +41,7 @@ const cache = new NodeCache({ stdTTL: 2 * 60 * 60 }); // Cache expires in 5 minu
 
 exports.getAllItems = async (req, res) => {
     try {
+        // cache.flushAll(); // Clear the cache
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const startIndex = (page - 1) * limit;
@@ -215,3 +216,43 @@ exports.deleteItem = async (req, res) => {
 
 // Middleware for image uploads
 exports.uploadImages = upload.array('images', 10); // Allow up to 10 images at once
+
+
+// Serach & Filter APi
+exports.searchItems = async (req, res) => {
+    try {
+        // Extract filters from query parameters
+        const { name, category, subCategory, brand } = req.query;
+
+        // Create an object to hold filter conditions
+        const filters = {};
+
+        // Add condition for name if provided
+        if (name) {
+            filters.name = { $regex: name, $options: 'i' }; // Case-insensitive search
+        }
+
+        // Add condition for category if provided
+        if (category) {
+            filters.category = new mongoose.Types.ObjectId(category);
+        }
+
+        // Add condition for subCategory if provided
+        if (subCategory) {
+            filters.subCategory = new mongoose.Types.ObjectId(subCategory);
+        }
+
+        // Add condition for brand if provided
+        if (brand) {
+            filters.brand = new mongoose.Types.ObjectId(brand);
+        }
+
+        // Find items based on the AND filter conditions
+        const items = await Item.find(filters).populate('category subCategory brand');
+
+        res.status(200).json({ success: true, data: items });
+    } catch (error) {
+        console.error('Error searching items:', error);
+        res.status(500).json({ success: false, message: 'An error occurred while searching items.' });
+    }
+};

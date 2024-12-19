@@ -16,4 +16,7 @@ router.get('/item/:id', itemController.getItemById);
 router.put('/:id', upload.array('images'), itemController.updateItem);
 router.delete('/:id', itemController.deleteItem);
 
+// Search & Filter
+router.get('/filter/search', itemController.searchItems);
+
 module.exports = router;

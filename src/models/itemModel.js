@@ -2,23 +2,27 @@ const mongoose = require('mongoose');
 
 // Define the schema
 const itemSchema = new mongoose.Schema({
-    companyId: { type:  mongoose.Schema.Types.ObjectId, ref : "Company", required: true },
+    companyId: { type: mongoose.Schema.Types.ObjectId, ref: "Company", required: true },
+    images: { type: [Buffer], required: false },
+    logoImage: { type: String, required: false },
     name: { type: String, required: true },
     about: { type: String, required: true },
-    category: { type: mongoose.Schema.Types.ObjectId,ref: 'Category', required: true }, // Store Object ID as a string
-    subCategory: { type: mongoose.Schema.Types.ObjectId,ref: 'SubCategory', required: false }, // Store Object ID as a string (optional)
-    brand: { type: mongoose.Schema.Types.ObjectId,ref: 'Brand', required: true }, // Store Object ID as a string
-    size: { type: String, required: true }, // e.g., "10 cm", "5 kg", "2 liters"
-    color: { type: String, required: false }, // Optional
-    price: { type: Number, required: true }, // Selling price
-    costPrice: { type: Number, required: false }, // Cost price
-    sellingPrice: { type: Number, required: false }, // Cost price
-    quantity: { type: Number, required: false }, // Total quantity in stock
-    minQuantity: { type: Number, required: false }, // Minimum quantity threshold
-    maxQuantity: { type: Number, required: false }, // Maximum allowable quantity (optional)
-    type: { type: String, required: false }, // Optional
-    images: { type: [Buffer], required: false },
-    updatedAt: { type: Date, default: Date.now }, // Updated manually  
+    category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
+    subCategory: { type: mongoose.Schema.Types.ObjectId, ref: 'SubCategory', required: false },
+    brand: { type: mongoose.Schema.Types.ObjectId, ref: 'Brand', required: true },
+    feature: { type: String, required: false },
+    bestSelling: { type: Boolean, required: false, default: false },
+    discount: { type: Number, required: false, default: 0 },
+    rating: { type: Number, min: 0, max: 5, required: false, default: 0 },
+    price: { type: Number, required: true },
+    costPrice: { type: Number, required: false },
+    sellingPrice: { type: Number, required: false },
+    quantity: { type: Number, required: false },
+    minQuantity: { type: Number, required: false },
+    maxQuantity: { type: Number, required: false },
+    type: { type: String, required: false },
+    size: { type: String, required: false },
+    color: { type: String, required: false },
 }, { timestamps: true });
 
 // Middleware to update `updatedAt` before saving
