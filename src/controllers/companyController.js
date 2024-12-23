@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 exports.addCompany = async (req, res) => {
   try {
     const { name, email, number, gstNumber, cinNumber, password } = req.body;
-    
+
     const newCompany = new Company({
       name,
       email,
@@ -98,19 +98,25 @@ exports.getCompanyById = async (req, res) => {
   }
 };
 
-// Fetch all items for a specific company
-exports.getCompanyItems = async (req, res) => {
+// Fetch a specific company by Name
+exports.getCompanyByName = async (req, res) => {
   try {
-    const { companyId } = req.params;
+    const companyName = req.params.name;
 
-    const company = await Company.findById(companyId);
+    // Create a regex pattern that matches the company name with optional spaces
+    const regexPattern = companyName.split('').join('\\s*'); // e.g., "company" => "c\\s*o\\s*m\\s*p\\s*a\\s*n\\s*y"
+    const regex = new RegExp(`^${regexPattern}$`, 'i'); // case insensitive
+
+    // Fetch the company from the database using the regex
+    const company = await Company.findOne({ name: { $regex: regex } }); // Assuming "name" is the field to search
+
+    // Check if the company was found
     if (!company) {
       return res.status(404).json({ message: "Company not found." });
     }
 
-    const items = await Item.find({ companyId });
-    res.status(200).json({ company, items });
+    res.status(200).json({ data: company });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching items for company.", error: error.message });
+    res.status(500).json({ message: "Error fetching company.", error: error.message });
   }
 };

@@ -12,9 +12,12 @@ const router = express.Router();
 router.post('/', itemController.uploadImages, itemController.createItem);
 router.get('/', itemController.getAllItems);
 router.get('/:companyId', itemController.getAllItemsByCompanyId);
-router.get('/item/:id', itemController.getItemById);
 router.put('/:id', upload.array('images'), itemController.updateItem);
 router.delete('/:id', itemController.deleteItem);
+
+// fetch specific item
+router.get('/item/:id', itemController.getItemById);
+router.get('/itemName/:name', itemController.getItemByName);
 
 // Search & Filter
 router.get('/filter/search', itemController.searchItems);

@@ -160,6 +160,34 @@ exports.getItemById = async (req, res) => {
     }
 };
 
+// Get an item by Name
+exports.getItemByName = async (req, res) => {
+    try {
+        // Get the item name from the request parameters
+        const itemName = req.params.name;
+
+        // Create a regex pattern that matches the item name with optional spaces
+        const regexPattern = itemName.split('').join('\\s*'); // e.g., "maulik" => "m\\s*a\\s*u\\s*l\\s*i\\s*k"
+        const regex = new RegExp(`^${regexPattern}$`, 'i'); // case insensitive
+
+        // Fetch the item from the database using the regex
+        const item = await Item.findOne({ name: { $regex: regex } }); // Assuming "name" is the field to search
+
+        // Check if the item was found
+        if (!item) {
+            return res.status(404).json({ success: false, message: 'Item not found' });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: item,
+        });
+    } catch (error) {
+        // Handle any errors that occur during the fetch operation
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 // Update an item
 exports.updateItem = async (req, res) => {
     try {
@@ -222,20 +250,22 @@ exports.uploadImages = upload.array('images', 10); // Allow up to 10 images at o
 exports.searchItems = async (req, res) => {
     try {
         // Extract filters from query parameters
-        const { name, category, subCategory, brand } = req.query;
+        const { name, category, subCategory, brand, company } = req.query;
 
         // Create an object to hold filter conditions
         const filters = {};
 
         // Add condition for name if provided
         if (name) {
-            filters.name = { $regex: name, $options: 'i' }; // Case-insensitive search
+            // Use regex for partial matches
+            filters.name = { $regex: `.*${name.trim()}.*`, $options: 'i' }; // Match any part of the string
         }
 
         // Add condition for category if provided
         if (category) {
             filters.category = new mongoose.Types.ObjectId(category);
         }
+
         // Add condition for subCategory if provided
         if (subCategory) {
             // Parse subCategory to handle multiple values
@@ -250,6 +280,11 @@ exports.searchItems = async (req, res) => {
             // Parse brand to handle multiple values
             const brands = Array.isArray(brand) ? brand : brand.split(','); // Accept comma-separated values
             filters.brand = { $in: brands.map(id => new mongoose.Types.ObjectId(id)) };
+        }
+
+        // Add condition for company if provided
+        if (company) {
+            filters.companyId = new mongoose.Types.ObjectId(company); // Single company ID
         }
 
         // Find items based on the AND filter conditions
