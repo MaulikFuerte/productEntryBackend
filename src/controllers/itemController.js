@@ -56,7 +56,7 @@ exports.getAllItems = async (req, res) => {
         }
 
         // Fetch items from the database
-        const items = await Item.find().skip(startIndex).limit(limit);
+        const items = await Item.find().sort({ createdAt: -1 }).skip(startIndex).limit(limit);
 
         const totalItems = await Item.countDocuments();
 
@@ -288,7 +288,7 @@ exports.searchItems = async (req, res) => {
         }
 
         // Find items based on the AND filter conditions
-        const items = await Item.find(filters);
+        const items = await Item.find(filters).sort({ createdAt: -1 });
 
         res.status(200).json({ success: true, data: items });
     } catch (error) {
