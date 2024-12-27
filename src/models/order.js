@@ -14,7 +14,7 @@ const orderSchema = new mongoose.Schema({
         enum: ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'],
         default: 'Pending'
     },
-    deliveryMode: { type: String, required: true }, // e.g., "Standard" or "Express"
+    orderId: { type: String, required: false }, // e.g., "Standard" or "Express"
     deliveryStatus: {
         type: String,
         enum: ['Not Shipped', 'In Transit', 'Delivered'],

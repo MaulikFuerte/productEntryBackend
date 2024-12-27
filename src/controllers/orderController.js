@@ -8,7 +8,7 @@ const orderController = {
 
     createOrder: async (req, res) => {
         try {
-            const { items, city, deliveryMode, totalAmount, userName, userNumber, userEmail, orderAddress, pincode, paymentMethod } = req.body;
+            const { items, city, orderId, totalAmount, userName, userNumber, userEmail, orderAddress, pincode, paymentMethod, isOrderCancelled = false, status } = req.body;
 
             // Validate that no item has a quantity greater than 10
             for (let orderItem of items) {
@@ -20,6 +20,8 @@ const orderController = {
                 }
             }
 
+            
+            if (!isOrderCancelled) {
             // Check and update item quantities
             for (let orderItem of items) {
                 const product = await Item.findById(orderItem.item);
@@ -40,12 +42,13 @@ const orderController = {
                 product.quantity -= orderItem.quantity;
                 await product.save(); // Save updated quantity
             }
+        }
 
             // Create the order
             const newOrder = new Order({
                 items,
                 city,
-                deliveryMode,
+                orderId,
                 totalAmount,
                 userName,
                 userNumber,
@@ -53,6 +56,8 @@ const orderController = {
                 orderAddress,
                 pincode,
                 paymentMethod,
+                isOrderCancelled,
+                status
             });
 
             // Save the order to the database
@@ -127,6 +132,38 @@ const orderController = {
         }
     },
 
+    // Update order status by ID
+    updateOrderStatus: async (req, res) => {
+        try {
+            const { status } = req.body; // Extract the status field from the request body
+
+            // Validate if status is provided and matches allowed values
+            const validStatuses = ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'];
+            if (!status || !validStatuses.includes(status)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid or missing status. Allowed values are: ' + validStatuses.join(', ')
+                });
+            }
+
+            // Update only the status field
+            const updatedOrder = await Order.findByIdAndUpdate(
+                req.params.id,
+                { status },
+                { new: true } // Return the updated document
+            );
+
+            // Handle case where order is not found
+            if (!updatedOrder) {
+                return res.status(404).json({ success: false, message: 'Order not found' });
+            }
+
+            return res.status(200).json({ success: true, data: updatedOrder });
+        } catch (error) {
+            return res.status(500).json({ success: false, message: error.message });
+        }
+    },
+
     // Delete order by ID
     deleteOrder: async (req, res) => {
         try {
@@ -185,7 +222,7 @@ const orderController = {
             return res.status(500).json({ success: false, message: error.message });
         }
     },
-    
+
     // Filter orders
     filterOrders: async (req, res) => {
         try {
