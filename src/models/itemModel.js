@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 // Define the schema
 const itemSchema = new mongoose.Schema({
     companyId: { type: mongoose.Schema.Types.ObjectId, ref: "Company", required: true },
-    images: { type: [Buffer], required: false },
+    // images: { type: [Buffer], required: false },
+    images: { type: [String], required: false },
     logoImage: { type: String, required: false },
     name: { type: String, required: true },
     about: { type: String, required: true },

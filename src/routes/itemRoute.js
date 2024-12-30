@@ -9,10 +9,11 @@ const upload = multer({ storage: storage });
 const router = express.Router();
 
 // Routes for items
-router.post('/', itemController.uploadImages, itemController.createItem);
+// router.post('/', itemController.uploadImages, itemController.createItem);
+router.post('/', itemController.createItem);
 router.get('/', itemController.getAllItems);
 router.get('/:companyId', itemController.getAllItemsByCompanyId);
-router.put('/:id', upload.array('images'), itemController.updateItem);
+router.put('/:id',itemController.updateItem);
 router.delete('/:id', itemController.deleteItem);
 
 // fetch specific item

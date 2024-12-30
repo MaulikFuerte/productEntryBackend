@@ -16,11 +16,6 @@ exports.createItem = async (req, res) => {
         // Log the entire item object as a plain object
         //  console.log('Received item:', item.toObject ? item.toObject() : item);
 
-
-        // If images are uploaded
-        if (req.files && req.files.length > 0) {
-            item.images = req.files.map(file => file.buffer); // Store images as binary data
-        }
         // Save the item to the database
         const savedItem = await item.save(); // Call save() and assign it to savedItem
 
@@ -189,6 +184,44 @@ exports.getItemByName = async (req, res) => {
 };
 
 // Update an item
+// exports.updateItem = async (req, res) => {
+//     try {
+//         const existingItem = await Item.findById(req.params.id);
+
+//         if (!existingItem) {
+//             return res.status(404).json({ success: false, message: 'Item not found' });
+//         }
+
+//         let updatedImages = [];
+
+//         // Retain existing images as Buffer data
+
+//         if (existingItem.images && existingItem.images.length > 0) {
+//             updatedImages = existingItem.images;
+//         }
+
+//         // Add newly uploaded images, if any
+//         if (req.files && req.files.length > 0) {
+//             const newImages = req.files.map(file => file.buffer); // Only keep the buffer
+//             updatedImages = [...updatedImages, ...newImages];
+//         }
+
+//         // Update the item
+//         const updatedItem = await Item.findOneAndUpdate(
+//             { _id: req.params.id },
+//             { ...req.body, images: updatedImages },
+//             { new: true }
+//         );
+
+//         if (!updatedItem) {
+//             return res.status(404).json({ success: false, message: 'Failed to update item' });
+//         }
+//         cache.flushAll(); // Clear the cache
+//         res.status(200).json({ success: true, data: updatedItem });
+//     } catch (error) {
+//         res.status(500).json({ success: false, message: error.message });
+//     }
+// };
 exports.updateItem = async (req, res) => {
     try {
         const existingItem = await Item.findById(req.params.id);
@@ -199,15 +232,29 @@ exports.updateItem = async (req, res) => {
 
         let updatedImages = [];
 
-        // Retain existing images as Buffer data
-        if (existingItem.images && existingItem.images.length > 0) {
-            updatedImages = existingItem.images;
-        }
+        // Parse the `images` field from the request body
+        if (req.body.images) {
+            try {
+                const images = JSON.parse(req.body.images);
 
-        // Add newly uploaded images, if any
-        if (req.files && req.files.length > 0) {
-            const newImages = req.files.map(file => file.buffer); // Only keep the buffer
-            updatedImages = [...updatedImages, ...newImages];
+                if (Array.isArray(images)) {
+                    updatedImages = images; // Assign the merged image array
+                } else {
+                    console.error('Invalid format for images');
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Invalid format for images. Expected an array.',
+                    });
+                }
+            } catch (err) {
+                console.error('Failed to parse images:', err);
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid images format',
+                });
+            }
+        } else {
+            updatedImages = existingItem.images; // Retain existing images if no `images` field is provided
         }
 
         // Update the item
@@ -221,8 +268,10 @@ exports.updateItem = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Failed to update item' });
         }
         cache.flushAll(); // Clear the cache
+
         res.status(200).json({ success: true, data: updatedItem });
     } catch (error) {
+        console.error('Error updating item:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -242,13 +291,11 @@ exports.deleteItem = async (req, res) => {
     }
 };
 
-// Middleware for image uploads
-exports.uploadImages = upload.array('images', 10); // Allow up to 10 images at once
-
-
 // Serach & Filter APi
 exports.searchItems = async (req, res) => {
     try {
+        // cache.flushAll(); // Clear the cache
+
         // Extract filters from query parameters
         const { name, category, subCategory, brand, company } = req.query;
 
