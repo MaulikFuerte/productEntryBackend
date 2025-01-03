@@ -9,7 +9,7 @@ const itemSchema = new mongoose.Schema({
     name: { type: String, required: true },
     about: { type: String, required: true },
     category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
-    subCategory: { type: mongoose.Schema.Types.ObjectId, ref: 'SubCategory', required: false },
+    subCategory: { type: mongoose.Schema.Types.ObjectId, ref: 'SubCategory', required: false, default: null },
     brand: { type: mongoose.Schema.Types.ObjectId, ref: 'Brand', required: true },
     feature: { type: String, required: false },
     bestSelling: { type: Boolean, required: false, default: false },

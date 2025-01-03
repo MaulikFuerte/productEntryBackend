@@ -11,6 +11,13 @@ const upload = multer({ storage: storage });
 // Create a new item
 exports.createItem = async (req, res) => {
     try {
+        // console.log("........3..............", req.body);
+
+        // Remove empty subCategory field
+        if (!req.body.subCategory) {
+            delete req.body.subCategory;
+        }
+
         const item = new Item(req.body);
 
         // Log the entire item object as a plain object
@@ -75,7 +82,6 @@ exports.getAllItems = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
-
 
 // get all items
 exports.getAllItemsByCompanyId = async (req, res) => {
@@ -230,6 +236,10 @@ exports.updateItem = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Item not found' });
         }
 
+        if (!req.body.subCategory) {
+            delete req.body.subCategory;
+        }
+
         let updatedImages = [];
 
         // Parse the `images` field from the request body
@@ -334,10 +344,30 @@ exports.searchItems = async (req, res) => {
             filters.companyId = new mongoose.Types.ObjectId(company); // Single company ID
         }
 
+        // Pagination logic
+        // const skip = (parseInt(page) - 1) * parseInt(limit);
+        // const items = await Item.find(filters)
+        //     .sort({ createdAt: -1 })
+        //     .skip(skip)
+        //     .limit(parseInt(limit));
+
+        // // Total count for pagination metadata
+        // const totalItems = await Item.countDocuments(filters);
+
+
         // Find items based on the AND filter conditions
         const items = await Item.find(filters).sort({ createdAt: -1 });
 
         res.status(200).json({ success: true, data: items });
+        // res.status(200).json({
+        //     success: true,
+        //     data: items,
+        //     pagination: {
+        //         totalItems,
+        //         currentPage: parseInt(page),
+        //         totalPages: Math.ceil(totalItems / parseInt(limit))
+        //     }
+        // });
     } catch (error) {
         console.error('Error searching items:', error);
         res.status(500).json({ success: false, message: 'An error occurred while searching items.' });
