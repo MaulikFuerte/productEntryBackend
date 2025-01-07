@@ -14,7 +14,7 @@ exports.createCategory = async (req, res) => {
         });
 
         await category.save();
-
+        cache.del('all-categories');
         res.status(201).json({ message: 'Category created successfully', success: true, category });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -51,19 +51,77 @@ exports.createCategory = async (req, res) => {
 //     }
 // };
 
+// // Get all categories without pagination
+// exports.getAllCategories = async (req, res) => {
+//     try {
+//         // Fetch all categories
+//         const categories = await Category.find();
+
+//         // Prepare the response
+//         res.status(200).json({
+//             success: true,
+//             data: categories,
+//         });
+//     } catch (error) {
+//         res.status(500).json({
+//             error: error.message,
+//         });
+//     }
+// };
+
+const NodeCache = require('node-cache');
+const cache = new NodeCache({ stdTTL: 2 * 60 * 60 }); // Cache expires in 2 hours
+
 // Get all categories without pagination
 exports.getAllCategories = async (req, res) => {
     try {
-        // Fetch all categories
-        const categories = await Category.find();
+        const cacheKey = 'all-categories';
+        
+        // Check cache for categories
+        const cachedCategories = cache.get(cacheKey);
+        if (cachedCategories) {
+            return res.status(200).json({ success: true, data: cachedCategories });
+        }
 
-        // Prepare the response
+        // Fetch categories from the database
+        const categories = await Category.find();
+        
+        // Store the response in the cache
+        cache.set(cacheKey, categories);
+
+        // Send response
+        res.status(200).json({ success: true, data: categories });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
+
+// Search categories by name
+exports.searchCategories = async (req, res) => {
+    try {
+        const { query } = req.query; // Extract the search query from the request
+
+        if (!query) {
+            return res.status(400).json({
+                success: false,
+                message: "Search query is required",
+            });
+        }
+
+        // Perform a case-insensitive search on the name field
+        const categories = await Category.find({
+            name: { $regex: query, $options: "i" }, // "i" makes it case-insensitive
+        });
+
         res.status(200).json({
             success: true,
             data: categories,
         });
     } catch (error) {
         res.status(500).json({
+            success: false,
             error: error.message,
         });
     }
