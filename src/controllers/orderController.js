@@ -8,14 +8,14 @@ const orderController = {
 
     createOrder: async (req, res) => {
         try {
-            const { items, city, orderId, totalAmount, userName, userNumber, userEmail, orderAddress, pincode, paymentMethod, isOrderCancelled = false, status } = req.body;
+            const { items, city, orderId, totalAmount, userName, userNumber, userEmail, orderAddress, LandMark, Locality, State, pincode, paymentMethod, isOrderCancelled = false, status } = req.body;
 
             // Validate that no item has a quantity greater than 10
             for (let orderItem of items) {
                 if (orderItem.quantity > 10) {
                     return res.status(400).json({
                         success: false,
-                        message: `You cannot order more than 10 units of any single item. Item ID: ${orderItem.item}`
+                        message: `You cannot order more than 10 units of any single item.`
                     });
                 }
             }
@@ -54,6 +54,9 @@ const orderController = {
                 userNumber,
                 userEmail,
                 orderAddress,
+                LandMark,
+                Locality,
+                State,
                 pincode,
                 paymentMethod,
                 isOrderCancelled,

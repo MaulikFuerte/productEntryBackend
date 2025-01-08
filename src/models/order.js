@@ -26,6 +26,9 @@ const orderSchema = new mongoose.Schema({
     userNumber: { type: String, required: true, match: [/^\d{10}$/, 'Please enter a valid 10-digit phone number'] },
     userEmail: { type: String, required: true, match: [/\S+@\S+\.\S+/, 'Please enter a valid email address'] }, // New userEmail field
     orderAddress: { type: String, required: true },
+    LandMark: { type: String, required: false, default: '' },
+    Locality: { type: String, required: false, default: '' },
+    State: { type: String, required: false, default: '' },
     pincode: { type: String, required: true, match: [/^\d{6}$/, 'Please enter a valid 6-digit pincode'] },
     paymentMethod: {
         type: String,
